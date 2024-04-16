@@ -1,0 +1,28 @@
+.equipment-custom-css-form .form-item-field-catalog-target-id label,
+.equipment-custom-css-form .form-composite span
+{
+    font-weight: 700;
+    color: #000;
+}
+.equipment-custom-css-form .form-item-combine {
+    position: relative;
+    top: 22px;
+}
+.equipment-custom-css-form .w3-panel {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+.equipment-custom-css-form .w3-panel {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+.equipment-custom-css-form fieldset.form-composite {
+    margin-top: 18px;
+}
+.views-field-field-documents .item-list ol li {
+    padding: 0;
+    margin: 0;
+}
+.views-field-field-documents .item-list ol .w3-panel::before{
+    margin-top: 4px;
+}

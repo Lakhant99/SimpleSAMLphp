@@ -1,0 +1,51 @@
+diff --git simplesamlphp_auth/src/Service/SimplesamlphpDrupalAuth.php simplesamlphp_auth/src/Service/SimplesamlphpDrupalAuth.php
+index a763122..84baab3 100644
+--- simplesamlphp_auth/src/Service/SimplesamlphpDrupalAuth.php
++++ simplesamlphp_auth/src/Service/SimplesamlphpDrupalAuth.php
+@@ -126,6 +126,9 @@ class SimplesamlphpDrupalAuth {
+       if ($this->config->get('role.eval_every_time')) {
+         $this->roleMatchSync($account);
+       }
++      if ($this->config->get('role.keep_default_role')) {
++        $this->roleAssignSync($account);
++      }
+     }
+ 
+     return $account;
+@@ -286,6 +289,36 @@ class SimplesamlphpDrupalAuth {
+     }
+   }
+ 
++  /**
++   * Synchronizes (adds) user account roles.
++   *
++   * @param \Drupal\user\UserInterface $account
++   *   The Drupal user to sync roles for.
++   */
++  public function roleAssignSync(UserInterface $account) {
++    // Get matching roles based on retrieved SimpleSAMLphp attributes.
++    $matching_roles = $this->getMatchingRoles();
++    // Get user's current roles, excluding locked roles (e.g. Authenticated).
++    $current_roles = $account->getRoles(TRUE);
++    // Set boolean to only update account when needed.
++    $account_updated = FALSE;
++    // Add roles mapped to the user via SAML.
++    foreach (array_diff($matching_roles, $current_roles) as $role_id) {
++      if ($this->config->get('debug')) {
++        $this->logger->debug('Adding role %role to user %name', [
++          '%role' => $role_id,
++          '%name' => $account->getAccountName(),
++        ]);
++      }
++      $account->addRole($role_id);
++      $account_updated = TRUE;
++    }
++    if ($account_updated) {
++      $account->save();
++    }
++    $current_roles = $account->getRoles(TRUE);
++  }
++
+   /**
+    * Synchronizes (adds/removes) user account roles.
+    *

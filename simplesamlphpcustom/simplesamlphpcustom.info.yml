@@ -1,0 +1,11 @@
+name: Simplesamlphpcustom
+type: module
+description: 'Maps custom SAML SSO existing users.'
+package: Custom
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10
+configure: simplesamlphp_auth.admin_settings
+dependencies:
+ - drupal:user
+ - externalauth:externalauth
+ - drupal:simplesamlphp_auth

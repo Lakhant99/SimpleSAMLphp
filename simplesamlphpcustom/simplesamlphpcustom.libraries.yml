@@ -1,0 +1,11 @@
+simplesamlphpcustom.custom:
+  version: 1.x
+  css:
+    theme:
+      css/samlstyle.css: {}
+  js:
+    js/add.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupalSettings

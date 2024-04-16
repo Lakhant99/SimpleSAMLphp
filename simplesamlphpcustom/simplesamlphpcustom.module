@@ -1,0 +1,78 @@
+<?php
+use Drupal\node\Entity\Node;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\ViewExecutable;
+/**
+ * @file
+ * Primary module hooks for simplesamlphpcustom module.
+ *
+ * @DCG
+ * This file is no longer required in Drupal 8.
+ * @see https://www.drupal.org/node/2217931
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function simplesamlphpcustom_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+    $form['#attached']['library'][] = 'simplesamlphpcustom/simplesamlphpcustom.custom';
+    if($form['#id'] == 'simplesamlphp-auth-syncing-settings-form') {
+        $config = \Drupal::configFactory()->getEditable('simplesamlphp_auth.settings');
+        $form['user_info']['keep_default_role'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Keep the existing users'),
+            '#weight' => 2,
+            '#default_value' => $config->get('role.keep_default_role'),
+            '#description' => '<p>' . t('NOTE: This means users could not lose any roles that have been assigned manually in Drupal.') . '</p>',
+        );
+        $form['#submit'][] = 'simplesamlphpcustom_settings_submit';
+    }
+}
+
+/**
+ * Custom submit callback.
+ */
+function simplesamlphpcustom_settings_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+    $config = \Drupal::configFactory()->getEditable('simplesamlphp_auth.settings');
+    $config->set('role.keep_default_role', $form_state->getValue('keep_default_role'));
+    $config->save();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function simplesamlphpcustom_form_views_exposed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::configFactory()->getEditable('equipment.settings');
+  $form_id = $config->get('equipment_form_id');
+  if (isset($form['#id']) && $form['#id'] == 'views-exposed-form-duplicate-of-list-equipment-page-1' || $form['#id'] == $form_id) {
+    $form['#attributes']['class'][] = 'equipment-custom-css-form'; 
+    $form['field_obsolete_value']["#options"]['All'] = t('Show');
+    $form["field_obsolete_value"]["#default_value"] = '2';
+    unset($form['field_obsolete_value']["#options"]['1']);
+    $form['field_test_item_value']["#options"]['All'] = t('Show');
+    $form["field_test_item_value"]["#default_value"] = '2';
+    unset($form['field_test_item_value']["#options"]['1']);
+  }
+}
+/* hook_views_pre_render */
+function simplesamlphpcustom_views_pre_render(ViewExecutable $view){
+  $config = \Drupal::configFactory()->getEditable('equipment.settings');
+  $view_id = $config->get('equipment_view_id');
+  $current_roles = \Drupal::currentUser()->getRoles();
+  $roles = ['external_kes_international','internal_esei_admin','internal_esei_pm','administrator','superuser'];
+  $new_role = array_intersect($current_roles,$roles);
+  if ($view->storage->id() == 'duplicate_of_list_equipment' || $view->storage->id() == $view_id) {
+    $matchedGroupIds = array();
+    foreach ($view->result as $row) {
+      $id = $row->_entity->id();
+      $get_international = $row->_relationship_entities["field_manufacturer_version"]->field_international->getValue()[0]['value'];
+      if($get_international != '1' || !empty($new_role)) {
+        if(!in_array($id, $matchedGroupIds)){
+          array_push($matchedGroupIds, $id);
+          $rows[] = $row;
+        }
+      }
+    }
+    $view->result = $rows;
+  }
+}

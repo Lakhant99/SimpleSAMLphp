@@ -1,0 +1,14 @@
+simplesamlphpcustom.settings_form:
+  path: '/admin/config/system/simplesamlphpcustom'
+  defaults:
+    _title: 'Simplesamlphpcustom settings'
+    _form: 'Drupal\simplesamlphpcustom\Form\SettingsForm'
+  requirements:
+    _permission: 'administer simplesamlphpcustom configuration'
+simplesamlphpcustom.role_back:
+  path: '/saml/roleback'
+  defaults:
+    _title: 'Role Back Session'
+    _controller: '\Drupal\simplesamlphpcustom\Controller\SamlRoleBackController::content'
+  requirements:
+    _permission: 'administer simplesamlphpcustom configuration'

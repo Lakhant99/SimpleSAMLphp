@@ -1,0 +1,4 @@
+administer simplesamlphpcustom configuration:
+  title: 'Administer simplesamlphpcustom configuration'
+  description: 'Optional description.'
+  restrict access: true
